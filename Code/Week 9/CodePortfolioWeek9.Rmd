@@ -1,0 +1,74 @@
+---
+title: "Code Portfolio: Week 9"
+author: "Katherin Jardim Rodrigues"
+date: "December, 2018"
+output: 
+  html_document:
+    toc: TRUE # table of content true
+    toc_float: TRUE #table of content in a side
+    theme: cerulean
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = FALSE, warning=FALSE)
+```
+
+# Week 9  
+
+##Week.9: Visualization  
+
+Reference -> https://r4ds.had.co.nz/exploratory-data-analysis.html
+
+*Packages:* tidyverse / ggplot  
+
+- To examine the distribution of a **categorical** variable, use a bar chart.  
+- To examine the distribution of a **continuous** variable, use a histogram.  
+- To make graphs with ggplot2, the data must be in a data frame, and in "long" (as opposed to wide) format. 
+
+##Week.9: Exploratory Data Analysis
+1. Formulate your question  
+2. Read in your data  
+3. Check the packaging  
+4. Look at the top and the bottom of your data  
+5. Check your "n"s  
+6. Validate with at least one external data source  
+7. Make a plot  
+8. Try the easy solution first  
+9. Follow up  
+
+##Week.9: Practice 
+
+ **GSS 2010-2011**
+
+The General Social Survey (GSS) has served as input to provide a way in "a clear and unbiased perspective" to politicians, scholars and other sectors since 1972 (NORC, 2010). In this report, we are going to explore and analyze the GSS data related to abortion. 
+
+**Formulate your question**
+
+We are going to answer the following question: *"What is the most tight reason in the society when we talked about abortion?" and "what other factors are relevant in the opinion?"*
+
+**Read in your data & Check packaging**
+```{r error=FALSE, warning=FALSE}
+#Check packages
+library(foreign) #It's like readr but for SPSS files
+library(sjlabelled) #Support for labels between SPSS and R
+library(expss) #Tabulation function with SPSS data
+library(tidyr) #It's designed specifically for data tidying (not general reshaping or aggregating) and works well with 'dplyr' data pipelines.
+library(ggplot2)
+library(dplyr)
+#Read in your data
+dataset = read.spss("C:/Users/Katherin/Desktop/MSC ANALYTICS/ANLY506/CodePortfolio/Data/gss10_1500cases.sav", to.data.frame=TRUE, use.value.labels = TRUE)
+f1.data <- gather(dataset[,c(1:5)], key = "Reasons", value=Value, na.rm=TRUE) #Changing the dataset to the info that we need it
+f1.data.count <- f1.data %>%
+  group_by(Reasons, Value)%>%
+  tally()
+#Making a plot
+fig1 <- ggplot(f1.data.count, aes(x=Reasons, y=n, fill=Value)) + 
+  geom_bar(position="dodge", stat="identity") + 
+  coord_flip() + 
+  labs(title="Figure 1: Number of People by Abortion Circumstances", caption="Source: NORC,2010", y="Number of People", x="Reasons") + 
+  scale_x_discrete(labels=c("Abortion if woman wants for any reason","Strong chance of serious defect", "Woman's health seriously endangered","Pregnant as result of rape","Not married")) #ggplot to generate graph
+print(fig1)
+```
+
+**Follow-up**  
+We can see that Woman's health seriously endangered and pregnant as result of rape are the most frequent reasons that a woman can take the abortion as a decision. 

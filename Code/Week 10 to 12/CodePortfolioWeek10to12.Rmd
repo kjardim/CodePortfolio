@@ -1,0 +1,81 @@
+---
+title: "Code Portfolio: Week 10 to 12"
+author: "Katherin Jardim Rodrigues"
+date: "February, 2019"
+output: 
+  html_document:
+    toc: TRUE # table of content true
+    toc_float: TRUE #table of content in a side
+    theme: cerulean
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = FALSE, warning=FALSE)
+```
+
+# Week 10
+
+##Week.10: Other visualization tools & Data summary  
+- We can adjust the size of margins by specifying a margin parameter using `par(mar)` -> par(mar = c(top, right, bottom, left)).  
+- If we want to do one dimension summaries, we can use: five number summary, histogram and boxplot.  
+- If we want to do with two dimensions: Multiple/overlayed (lattice/ggplot2), scatterplots, smooth scatterplots. 
+
+##Week.10: Practice 
+```{r}
+library(ggplot2)
+par(mfrow = c(1, 3), mar = c(4, 4, 2, 1), oma = c(0, 0, 2, 0))
+with(diamonds, {
+ plot(carat, price, main = "Carat and Price")
+ plot(depth, price, main = "Price and depth")
+ plot(table, price, main = "Price and Table")
+ mtext("Price and its features in Diamonds", outer = TRUE)
+ })
+
+```
+
+
+# Week 12
+
+Reference: https://uc-r.github.io/kmeans_clustering
+
+##Week.12: K-means Cluster Analysis
+
+*Packages:* tidyverse / cluster & factoextra  
+
+- Rows are observations (individuals) and columns are variables  
+- Any missing value in the data must be removed or estimated.  
+- The data must be standardized (i.e., scaled) to make variables comparable. Recall that, standardization consists of transforming the variables such that they have mean zero and standard deviation one  
+- To remove any missing value that might be present in the data, type this: `df <- na.omit(df)`
+
+```{r}
+df <- USArrests
+df <- na.omit(df)
+df <- scale(df)
+head(df)
+```
+
+```{r error=FALSE, warning=FALSE}
+library(factoextra)
+distance <- get_dist(df)
+fviz_dist(distance, gradient = list(low = "#00AFBB", mid = "white", high = "#FC4E07"))
+```
+
+
+
+```{r}
+library(cluster)
+# compute gap statistic
+set.seed(123)
+gap_stat <- clusGap(df, FUN = kmeans, nstart = 25,
+                    K.max = 10, B = 50)
+# Print the result
+print(gap_stat, method = "firstmax")
+fviz_gap_stat(gap_stat)
+```
+
+```{r}
+set.seed(123)
+final <- kmeans(df, 4, nstart = 25)
+print(final)
+fviz_cluster(final, data = df)
+```

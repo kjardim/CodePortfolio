@@ -1,0 +1,274 @@
+---
+title: "Code Portfolio: Week 5 to 7"
+author: "Katherin Jardim Rodrigues"
+date: "December, 2018"
+output: 
+  html_document:
+    toc: TRUE # table of content true
+    toc_float: TRUE #table of content in a side
+    theme: cerulean
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = FALSE, warning=FALSE)
+```
+
+# Week 5
+
+##Week.5: Files load
+
+*Packages:* readr and tidyverse for flat files 
+
+**Remember to load a package, you should use the function 'library()'**
+
+Load flat files in R with the readr package:   
+library(tidyverse)  
+read.csv() *comma delimited files*  
+read.csv2() *reads semicolon separated files*   
+read_tsv() *tabs delimited files*  
+read.delim() *reads in files with any delimiter*  
+read_fwf() *reads fixed width files*  
+
+Every single file type that we want to get into R, require its own function.
+
+**Recommendations:**  
+- If we are going to work with Excel, the first row is usually reserved for the header, and the first column for the sampling unit.  
+- We cannot use blank spaces in the headers. Below, we are going to mention some functions to avoid this.  
+- Short names are preferred over longer names. 
+- Avoid special characters.  
+- Remember to delete the comments (we can use 'skip=')  
+- Verify that missing values are indicated as NA.   
+- To start a work, we can use 'rm(list=ls())' to remove data and values previously processed. 
+
+```{r eval=FALSE}
+#"\n" -> Shortcut for adding a new line
+a -> read_csv("1,2,3\n4,5,6", col_names = FALSE)
+```
+
+**What function would you use to read a file where fields were separated with "|"?**
+```{r eval=FALSE}
+read_delim(file, delim = "|")
+```
+
+**Apart from file, skip, and comment, what other arguments do read_csv() and read_tsv() have in common?**
+
+-   `col_names` and `col_types`
+-   `locale` determine if "." or "," is used as a decimal mark.
+-   `na` and `quoted_na` missing values
+-   `trim_ws` trims whitespace 
+-   `n_max` rows to read
+-   `guess_max` Maximum number of records to use for guessing column types
+-   `progress` Display a progress bar? By default it will only display in an interactive session and not while knitting a document. The display is updated every 50,000 values and will only display if estimated reading time is 5 seconds or more. The automatic progress bar can be disabled by setting option readr.show_progress to FALSE.
+
+Reference -> https://readr.tidyverse.org/reference/read_delim.html
+
+**What are the most important arguments to read_fwf()?**  
+col_positions	
+Column positions, as created by fwf_empty(), fwf_widths() or fwf_positions().
+
+Sometimes strings in a CSV file contain commas. To prevent them from causing problems they need to be surrounded by a quoting character, like " or '. By convention, read_csv() assumes that the quoting character will be ", and if you want to change it you'll need to use read_delim() instead.  
+
+**What arguments do you need to specify to read the following text into a data frame?**
+```
+"x,y\n1,'a,b'"
+```
+`x <- "x,y\n1,'a,b'"
+read_csv(x, quote = "'")`
+
+**Identify what is wrong with each of the following inline CSV files. What happens when you run the code?**
+
+read_csv("a,b\n1,2,3\n4,5,6") #The first row is missing a value  
+read_csv("a,b,c\n1,2\n1,2,3,4") #The third column is missing a value  
+read_csv("a,b\n\"1") #The second column is missing a value  
+read_csv("a,b\n1,2\na,b") #create character table  
+read_csv("a;b\n1;3") #the values have semicolons instead of comma  
+
+**What are the most important arguments to locale()?**  
+-   date and time formats: `date_names`, `date_format`, and `time_format`  
+-   time zone: `tz`  
+-   numbers: `decimal_mark`, `grouping_mark`  
+-   encoding: `encoding`  
+
+**What happens if you try and set decimal_mark and grouping_mark to the same character? What happens to the default value of grouping_mark when you set decimal_mark to ","? What happens to the default value of decimal_mark when you set the grouping_mark to "."?**  
+1. It's going to generate an error.  
+2. The grouping mark will be period `"."`    
+3. The decimal mark will be a comma  
+
+**Other notes**  
+
+- We can rewrite the names of the columns to remove any spaces. 
+'names(ozone) <- make.names(names(ozone))'
+- 'str' -> number of rows and columns, classes. 
+- Look at the Top and the Bottom of your data: 'head()' and 'tail()'  
+
+##Week.5: Practice
+
+```{r}
+library(readr)
+ipeds2016 <- read_csv("C:/Users/Katherin/Desktop/MSC ANALYTICS/ANLY506/CodePortfolio/Data/ipeds2016.csv") #Import the dataset .csv with readr and establish the first row as column names
+#str(ipeds2016)  #Verify classes, number of rows and columns
+
+```
+
+```{r}
+head(ipeds2016)  #First rows to verify format and information
+#tail(ipeds2016)  #Last rows to verify format and information
+```
+
+# Week 6  
+
+Reference: https://bookdown.org/ndphillips/YaRrr/matricesdataframes.html 
+
+## Week.6: Creating matrices and dataframes  
+- cbind(a, b, c) *combine vectors as columns in a matrix* 
+```{r}
+cbind(1:5, 6:10, 11:15)
+```
+- rbind(a, b, c) *combine vectors as rows in a matrix*
+```{r}
+rbind(1:5, 6:10, 11:15)
+```
+-matrix(x, nrow, ncol, byrow) *create a matrix from a vector 'x'
+```{r}
+x <- 1:12
+matrix(x, nrow = 3, ncol = 4)
+```
+- data.frame() *create a dataframe from named columns* 
+```{r}
+data.frame("age" = c(19,21), "sex" =c("m", "f"), stringsAsFactors = FALSE)
+#In dataframe, we should add stringsAsFactors=FALSE to maintain sex as character
+```
+We can access specific data using brackets: 'data[rows, columns]
+
+##Week.6: Practice
+
+- *Combine the data into a single dataframe*
+```{r}
+pirates <- data.frame("Name" = c("Astrid", "Lea", "Sarina", "Ramon", "Letizia", "Babice", "Jonas", "Wendy", "Niveditha", "Gioia"), "Sex" = c("F", "F","F","M","F","F","M","F","F","F"), "Age" = c(30, 25, 25, 29, 22, 22, 35, 19, 32, 21), "Superhero" = c("Batman", "Superman", "Batman", "Spiderman", "Batman", "Antman", "Batman", "Superman", "Magott", "Superman"), "Tattoos"= c(11, 15, 12, 5, 65, 3, 9, 13, 900, 0), stringsAsFactors = FALSE)
+head(pirates) 
+ 
+```
+
+- *What is the median age of the 10 pirates?*
+```{r}
+nrow(pirates) #to validate that they are 10
+median(pirates$Age) #Using $ to calculate the median
+with(pirates, median(Age)) #Using function 'With()'
+```
+-*What was the mean age of female and male pirates separately?*
+```{r}
+Females <- mean(pirates$Age[pirates$Sex == "F"])
+Males <- mean(pirates$Age[pirates$Sex =="M"])
+Mean.Age <- cbind(Females, Males)
+print(Mean.Age)
+```
+-*What was the most number of tattoos owned by a male pirate?*
+```{r}
+max(pirates$Tattoos[pirates$Sex=="M"])
+```
+-*What percent of pirates under the age of 32 were female?*
+```{r}
+with(pirates, mean(Sex[Age < 32] == "F"))
+```
+
+-*What percent of female pirates are under the age of 32?*
+```{r}
+with(pirates, mean(Age[Sex=="F"] < 32))
+```
+
+
+-*Add a new column to the dataframe called tattoos.per.year which shows how many tattoos each pirate has for each year in their life.*
+```{r}
+pirates$tattoos.per.year <- with(pirates, Tattoos/Age)
+tail(pirates)
+```
+
+-*Which pirate had the most number of tattoos per year?*
+```{r}
+pirates$Name[pirates$tattoos.per.year==max(pirates$tattoos.per.year)]
+```
+
+-*What are the names of the female pirates whose favorite superhero is Superman?*
+```{r}
+pirates$Name[pirates$Superhero=="Superman"]
+```
+
+-*What was the median number of tattoos of pirates over the age of 20 whose favorite superhero is Spiderman?*
+```{r}
+median(pirates$Tattoos[pirates$Age>20 & pirates$Superhero=="Spiderman"])
+```
+
+# Week 7
+
+Reference: https://r4ds.had.co.nz/transform.html
+
+## Week.7: Data transformation  
+
+*Packages:* dplyr 
+
+- **Logical vectors** are: `&` -> and; `|` -> or; `==` -> equal; `!` -> not.  
+-  To determine if a value is missing, use `is.na()`  
+
+##Week.7: Practice
+
+* *Find all flights that*
+
+- *Had an arrival delay of two or more hours*
+```{r}
+library(dplyr)
+flights <- nycflights13::flights 
+arrival.delay <- filter(flights, arr_delay>=120)
+head(arrival.delay)
+```
+
+- *Flew to Houston (IAH or HOU)*
+```{r}
+houston <- filter(flights, dest == "IAH" | dest == "HOU")
+tail(houston)
+```
+
+- *Were operated by United, American, or Delta* 
+```{r}
+airlines <- filter(flights, carrier %in% c('UA', 'AA', 'DL'))
+head(airlines)
+```
+
+- *Departed in summer (July, August, and September)*
+```{r}
+summer <- filter(flights, month %in% c(7, 8, 9))
+head(summer)
+```
+
+- *Arrived more than two hours late, but didn't leave late*
+```{r}
+late <- filter(flights, arr_delay > 120, dep_delay <= 0)
+head(late)
+```
+
+- *Were delayed by at least an hour, but made up over 30 minutes in flight*
+```{r}
+delayed <- filter(flights, dep_delay >= 60, dep_delay-arr_delay > 30)
+tail(delayed)
+```
+
+-*Departed between midnight and 6am (inclusive)*
+```{r}
+departure <- filter(flights, dep_time <= 600 | dep_time == 2400)
+head(departure)
+```
+
+-*Another useful dplyr filtering helper is between(). What does it do? Can you use it to simplify the code needed to answer the previous challenges?*
+
+This is a shortcut for x >= left & x <= right, implemented efficiently in C++ for local values, and translated to the appropriate SQL for remote tables.
+
+-*How many flights have a missing dep_time? What other variables are missing? What might these rows represent?*
+8255 flights have missing dep_time. Other variables are: dep_delay, arr_time, arr_delay, air_time. These rows might represent canceled flights, rerouting or a normal lost data. 
+```{r}
+summary(flights)
+```
+
+-**Why is NA ^ 0 not missing? Why is NA | TRUE not missing? Why is FALSE & NA not missing? Can you figure out the general rule? (`NA * 0` is a tricky counterexample!)**
+ NA ^ 0 -> equals to 1  
+ NA | TRUE -> the `|` operator returns TRUE if either of the terms are true  
+ FALSE & NA -> `&` returns TRUE when both terms are true.
+ 
